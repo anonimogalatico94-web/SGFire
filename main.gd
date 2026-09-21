@@ -334,8 +334,7 @@ var hit := get_world_3d().direct_space_state.intersect_ray(query)
 if hit.is_empty():
     return
 
-var obj = hit["collider"]
-    return
+    var obj = hit["collider"]
 
     var target: Node = obj
     var zone := "body"
