@@ -20,4 +20,4 @@ jobs:
       - name: Exportar Android
         run: |
           mkdir -p build
-          godot --headless --path . --editor --quit
+          godot --headless --path . --export-debug "Android" build/SGFire.apk
