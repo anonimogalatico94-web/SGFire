@@ -333,7 +333,11 @@ func _fire() -> void:
     if hit.is_empty():
         if weapon == "FACAO":
             cooldown = data.cooldown
-    recoil = 0.035 if weapon == "REVOLVER" else (0.055 if weapon == "44" else 0.018)
+                if hit.is_empty():
+        if weapon == "FACAO":
+            cooldown = data.cooldown
+        return
+    var obj = hit["collider"]
     return
     var obj = hit["collider"]
     var target: Node = obj
