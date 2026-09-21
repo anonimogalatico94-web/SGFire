@@ -1,1 +1,23 @@
-github/workflows/android.yml
+name: SGFire Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+
+      - name: Exportar SGFire para Android
+        uses: firebelley/godot-export@v6.0.0
+        with:
+          godot_executable_download_url: https://downloads.godotengine.org/?version=4.4.1&flavor=stable&slug=linux.x86_64.zip&platform=linux.x86_64
+          relative_project_path: ./
+          archive_output: true
+          presets_to_export: Android
