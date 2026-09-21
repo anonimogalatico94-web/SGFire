@@ -326,20 +326,17 @@ func _fire() -> void:
             return
         ammo -= 1
     var from := camera.global_position
-    var to := from + -camera.global_transform.basis.z * data.range
-    var query := PhysicsRayQueryParameters3D.create(from,to)
-    query.collide_with_areas = true
-    var hit := get_world_3d().direct_space_state.intersect_ray(query)
-    if hit.is_empty():
-        if weapon == "FACAO":
-            cooldown = data.cooldown
-                if hit.is_empty():
-        if weapon == "FACAO":
-            cooldown = data.cooldown
-        return
-    var obj = hit["collider"]
+var to := from + -camera.global_transform.basis.z * data.range
+var query := PhysicsRayQueryParameters3D.create(from, to)
+query.collide_with_areas = true
+var hit := get_world_3d().direct_space_state.intersect_ray(query)
+
+if hit.is_empty():
     return
-    var obj = hit["collider"]
+
+var obj = hit["collider"]
+    return
+
     var target: Node = obj
     var zone := "body"
     if obj is Area3D and obj.has_meta("hit_zone"):
