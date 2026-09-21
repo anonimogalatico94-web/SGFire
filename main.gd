@@ -334,7 +334,7 @@ func _fire() -> void:
         if weapon == "FACAO":
             cooldown = data.cooldown
     recoil = 0.035 if weapon == "REVOLVER" else (0.055 if weapon == "44" else 0.018)
-        return
+    return
     var obj = hit["collider"]
     var target: Node = obj
     var zone := "body"
