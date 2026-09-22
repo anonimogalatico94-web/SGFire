@@ -1,7 +1,7 @@
 [application]
 config/name="SGFire A03 Diagnostic"
 run/main_scene="res://A03Diagnostic.tscn"
-config/version="0.47.0"
+config/version="0.48.0"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 
 [display]
@@ -14,4 +14,5 @@ window/stretch/mode="canvas_items"
 [rendering]
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-textures/vram_compression/import_etc2_astc=true
+rendering_device/driver.android="opengl3"
+textures/vram_compression/import_etc2_astc=false
