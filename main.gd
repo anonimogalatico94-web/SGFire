@@ -334,12 +334,13 @@ var hit := get_world_3d().direct_space_state.intersect_ray(query)
 if hit.is_empty():
     return
 
-    var obj = hit["collider"]
+var obj = hit["collider"]
 
-    var target: Node = obj
-    var zone := "body"
-    if obj is Area3D and obj.has_meta("hit_zone"):
-        zone = str(obj.get_meta("hit_zone"))
+var target: Node = obj
+var zone := "body"
+
+if obj is Area3D and obj.has_meta("hit_zone"):
+    zone = str(obj.get_meta("hit_zone"))
         target = obj.get_parent()
     if target != null and target.has_meta("health"):
         var dmg: float = data.head if zone == "head" else data.body
