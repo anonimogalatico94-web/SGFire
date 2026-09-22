@@ -67,7 +67,7 @@ jobs:
         run: |
           set -eux
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/SGFire.apk
+          godot --headless --path . --install-android-build-template --export-debug "Android" build/SGFire.apk
           test -s build/SGFire.apk
           file build/SGFire.apk
           unzip -l build/SGFire.apk | head -30
