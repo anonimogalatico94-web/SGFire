@@ -30,3 +30,22 @@ jobs:
           fi
           yes | "$SDKMANAGER" --licenses >/dev/null || true
           "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.1" "ndk;28.1.13356709"
+
+      - name: Install Godot 4.4.1
+        run: |
+          set -eux
+          curl -L --fail --retry 3 -o godot.zip https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip
+          unzip -q godot.zip
+          chmod +x Godot_v4.4.1-stable_linux.x86_64
+          sudo mv Godot_v4.4.1-stable_linux.x86_64 /usr/local/bin/godot
+          godot --version
+
+      - name: Install Godot Android templates
+        run: |
+          set -eux
+          curl -L --fail --retry 3 -o templates.tpz https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_export_templates.tpz
+          rm -rf /tmp/godot_templates
+          mkdir -p /tmp/godot_templates
+          unzip -q templates.tpz -d /tmp/godot_templates
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.4.1.stable"
+          cp -a /tmp/godot_templates/templates/. "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
