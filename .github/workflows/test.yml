@@ -9,6 +9,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      ANDROID_HOME: /usr/local/lib/android/sdk
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,8 +25,6 @@ jobs:
       - name: Prepare Android SDK
         run: |
           set -eux
-          export ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
-          export ANDROID_HOME=/usr/local/lib/android/sdk
           SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
           if [ ! -x "$SDKMANAGER" ]; then
             SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/16.0/bin/sdkmanager"
@@ -62,7 +63,7 @@ jobs:
         run: |
           set -eux
           godot --headless --editor --quit --path .
-            timeout 15s godot --headless --path . --quit-after 5 || test $? -eq 124
+          timeout 15s godot --headless --path . --quit-after 5 || test $? -eq 124
 
       - name: Export A03-compatible APK
         run: |
