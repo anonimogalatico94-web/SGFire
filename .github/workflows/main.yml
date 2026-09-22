@@ -53,7 +53,9 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          godot --headless --editor --path . --install-android-build-template
+          echo "Installing Godot Android project build template..."
+          timeout 180s godot --headless --editor --path . --install-android-build-template
+          echo "Android project build template installation finished."
 
       - name: Configure Godot Android paths
         shell: bash
