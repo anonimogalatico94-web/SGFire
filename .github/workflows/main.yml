@@ -24,6 +24,8 @@ jobs:
           set -euxo pipefail
           export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
           export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-35" "build-tools;35.0.1" "cmake;3.10.2.4988404" "ndk;28.1.13356709"
           mkdir -p "$HOME/.android"
@@ -53,24 +55,14 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          echo "Installing Android Gradle project template directly from Godot source package..."
-          rm -rf /tmp/godot_android_source
-          mkdir -p /tmp/godot_android_source
-          unzip -q /tmp/godot_templates/templates/android_source.zip -d /tmp/godot_android_source
-          echo "Template contents:"
-          find /tmp/godot_android_source -maxdepth 3 -type f | head -80
-          if [ -d /tmp/godot_android_source/android/build ]; then
-            mkdir -p android
-            cp -a /tmp/godot_android_source/android/build android/
-          elif [ -d /tmp/godot_android_source/build ]; then
-            mkdir -p android
-            cp -a /tmp/godot_android_source/build android/
-          else
-            echo "ERROR: android_source.zip has an unexpected layout"
-            exit 1
-          fi
-          test -d android/build
-          echo "Android Gradle project template installed."
+          rm -rf android
+          mkdir -p android
+          unzip -q /tmp/godot_templates/templates/android_source.zip -d android
+          test -f android/build.gradle
+          test -f android/settings.gradle
+          test -f android/gradlew
+          chmod +x android/gradlew
+          echo "Android Gradle template installed."
 
       - name: Configure Godot Android paths
         shell: bash
