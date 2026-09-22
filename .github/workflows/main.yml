@@ -65,7 +65,7 @@ jobs:
         run: |
           set -eux
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/SGFire.apk
+          godot --headless --verbose --path . --export-debug "Android" build/SGFire.apk
 
       - name: Enviar APK
         uses: actions/upload-artifact@v4
