@@ -58,6 +58,10 @@ jobs:
         run: godot --headless --path . --import --quit-after 1
 
       - name: Exportar Android
+        env:
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: /home/runner/.android/debug.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
         run: |
           set -eux
           mkdir -p build
