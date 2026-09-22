@@ -1,0 +1,52 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource path="res://boot.gd" type="Script" id="1"]
+
+[node name="Boot" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.025, 0.025, 0.035, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Center"]
+custom_minimum_size = Vector2(600, 260)
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="Center/VBox"]
+layout_mode = 2
+text = "SGFIRE"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 56
+
+[node name="Subtitle" type="Label" parent="Center/VBox"]
+layout_mode = 2
+text = "PRIMEIRO TESTE • ANDROID"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 24
+
+[node name="Status" type="Label" parent="Center/VBox"]
+layout_mode = 2
+text = "INICIALIZANDO..."
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 22
