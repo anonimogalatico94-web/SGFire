@@ -86,16 +86,17 @@ func _build_world() -> void:
     var env := WorldEnvironment.new()
     var e := Environment.new()
     e.background_mode = Environment.BG_COLOR
-    e.background_color = Color(0.16,0.17,0.19)
+    e.background_color = Color(0.015,0.02,0.045)
     e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-    e.ambient_light_color = Color(0.65,0.68,0.72)
-    e.ambient_light_energy = 0.75
+    e.ambient_light_color = Color(0.18,0.22,0.38)
+    e.ambient_light_energy = 0.32
     env.environment = e
     add_child(env)
 
     var sun := DirectionalLight3D.new()
     sun.rotation_degrees = Vector3(-55,-30,0)
-    sun.light_energy = 0.85
+    sun.light_energy = 0.18
+    sun.light_color = Color(0.45,0.52,0.75)
     add_child(sun)
 
     _box("Ground", Vector3(0,-0.5,0), Vector3(80,1,80), Color(0.24,0.27,0.24))
@@ -159,6 +160,7 @@ func _build_enemies() -> void:
         enemy.set_meta("health",100.0)
         enemy.set_meta("hit_zone", "body")
         enemy.set_meta("attack_cd", 0.0)
+        enemy.set_meta("shoot_cd", 0.0)
         add_child(enemy)
         var body_shape := CollisionShape3D.new()
         var body_cap := CapsuleShape3D.new()
@@ -293,8 +295,11 @@ func _enemy_ai(delta: float) -> void:
             enemies.erase(enemy)
             continue
         var attack_cd := float(enemy.get_meta("attack_cd", 0.0))
+        var shoot_cd := float(enemy.get_meta("shoot_cd", 0.0))
         attack_cd = maxf(0.0, attack_cd - delta)
+        shoot_cd = maxf(0.0, shoot_cd - delta)
         enemy.set_meta("attack_cd", attack_cd)
+        enemy.set_meta("shoot_cd", shoot_cd)
         var to_player: Vector3 = player.global_position - enemy.global_position
         var dist: float = to_player.length()
         if dist > 2.1:
@@ -302,13 +307,24 @@ func _enemy_ai(delta: float) -> void:
             enemy.move_and_slide()
         else:
             enemy.velocity = Vector3.ZERO
-            enemy.look_at(Vector3(player.global_position.x, enemy.global_position.y, player.global_position.z), Vector3.UP)
-            if attack_cd <= 0.0:
-                health = maxf(0.0, health - 8.0)
+        enemy.look_at(Vector3(player.global_position.x, enemy.global_position.y, player.global_position.z), Vector3.UP)
+        if dist <= 28.0 and shoot_cd <= 0.0:
+            var from := enemy.global_position + Vector3.UP * 1.15
+            var to := player.global_position + Vector3.UP * 1.0
+            var query := PhysicsRayQueryParameters3D.create(from, to)
+            var hit := get_world_3d().direct_space_state.intersect_ray(query)
+            if not hit.is_empty() and hit["collider"] == player:
+                health = maxf(0.0, health - 7.0)
                 var fc := damage_flash.color
-                fc.a = 0.28
+                fc.a = 0.22
                 damage_flash.color = fc
-                enemy.set_meta("attack_cd", 1.0)
+            enemy.set_meta("shoot_cd", 1.25)
+        elif dist <= 2.1 and attack_cd <= 0.0:
+            health = maxf(0.0, health - 10.0)
+            var fc := damage_flash.color
+            fc.a = 0.28
+            damage_flash.color = fc
+            enemy.set_meta("attack_cd", 1.0)
 
 func _fire() -> void:
     if game_over or cooldown > 0.0:
