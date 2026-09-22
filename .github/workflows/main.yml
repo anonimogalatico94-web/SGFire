@@ -1,6 +1,8 @@
 name: SGFire Android APK
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -17,8 +19,12 @@ jobs:
           version: 4.4.1
           use-dotnet: false
 
+      - name: Validar projeto
+        run: godot --headless --path . --import --quit-after 1
+
       - name: Exportar Android
         run: |
+          set -eux
           mkdir -p build
           godot --headless --path . --export-debug "Android" build/SGFire.apk
 
@@ -27,3 +33,4 @@ jobs:
         with:
           name: SGFire-APK
           path: build/SGFire.apk
+          if-no-files-found: error
