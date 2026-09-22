@@ -10,8 +10,8 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 25
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,20 +22,15 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Android SDK
+      - name: Install Android SDK
         uses: android-actions/setup-android@v3
 
       - name: Install Android packages
-        shell: bash
         run: |
-          set -euxo pipefail
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.1" "cmake;3.10.2.4988404" "ndk;28.1.13356709"
           yes | sdkmanager --licenses >/dev/null || true
-          mkdir -p "$HOME/.android"
-          keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.1" "ndk;28.1.13356709"
 
-      - name: Godot 4.4.1
-        shell: bash
+      - name: Install Godot
         run: |
           set -euxo pipefail
           wget -q https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip
@@ -43,39 +38,20 @@ jobs:
           chmod +x Godot_v4.4.1-stable_linux.x86_64
           sudo mv Godot_v4.4.1-stable_linux.x86_64 /usr/local/bin/godot
 
-      - name: Godot export templates
-        shell: bash
+      - name: Install Godot export templates
         run: |
           set -euxo pipefail
           wget -q https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_export_templates.tpz
-          rm -rf /tmp/godot_templates
-          unzip -q Godot_v4.4.1-stable_export_templates.tpz -d /tmp/godot_templates
           mkdir -p "$HOME/.local/share/godot/export_templates/4.4.1.stable"
+          rm -rf /tmp/godot_templates
+          mkdir -p /tmp/godot_templates
+          unzip -q Godot_v4.4.1-stable_export_templates.tpz -d /tmp/godot_templates
           cp -a /tmp/godot_templates/templates/. "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
 
-      - name: Android build template
-        shell: bash
+      - name: Configure debug signing
         run: |
-          set -euxo pipefail
-          rm -rf android /tmp/android_source
-          mkdir -p /tmp/android_source android
-          unzip -q /tmp/godot_templates/templates/android_source.zip -d /tmp/android_source
-          if [ -f /tmp/android_source/build.gradle ]; then
-            cp -a /tmp/android_source/. android/
-          elif [ -f /tmp/android_source/android/build.gradle ]; then
-            cp -a /tmp/android_source/android/. android/
-          else
-            find /tmp/android_source -maxdepth 4 -type f | sort
-            exit 1
-          fi
-          chmod +x android/gradlew
-          test -f android/build.gradle
-          test -f android/settings.gradle
-
-      - name: Configure Godot
-        shell: bash
-        run: |
-          set -euxo pipefail
+          mkdir -p "$HOME/.android"
+          keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" || true
           mkdir -p "$HOME/.config/godot"
           cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
 [gd_resource type="EditorSettings" format=3]
@@ -88,11 +64,10 @@ export/android/debug_keystore_user = "androiddebugkey"
 export/android/debug_keystore_pass = "android"
 EOF
 
-      - name: Validate project
+      - name: Validate Godot project
         run: godot --headless --editor --quit --path .
 
       - name: Export APK
-        shell: bash
         run: |
           set -euxo pipefail
           mkdir -p build
