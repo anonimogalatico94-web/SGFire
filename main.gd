@@ -326,26 +326,26 @@ func _fire() -> void:
             return
         ammo -= 1
     var from := camera.global_position
-var to := from + -camera.global_transform.basis.z * data.range
-var query := PhysicsRayQueryParameters3D.create(from, to)
-query.collide_with_areas = true
-var hit := get_world_3d().direct_space_state.intersect_ray(query)
+    var to := from + -camera.global_transform.basis.z * data.range
+    var query := PhysicsRayQueryParameters3D.create(from, to)
+    query.collide_with_areas = true
+    var hit := get_world_3d().direct_space_state.intersect_ray(query)
 
-if hit.is_empty():
-    return
+    if hit.is_empty():
+        return
 
-var obj = hit["collider"]
+    var obj = hit["collider"]
+    var target: Node = obj
+    var zone := "body"
 
-var target: Node = obj
-var zone := "body"
-
-if obj is Area3D and obj.has_meta("hit_zone"):
-    zone = str(obj.get_meta("hit_zone"))
+    if obj is Area3D and obj.has_meta("hit_zone"):
+        zone = str(obj.get_meta("hit_zone"))
         target = obj.get_parent()
+
     if target != null and target.has_meta("health"):
         var dmg: float = data.head if zone == "head" else data.body
         var hp: float = float(target.get_meta("health")) - dmg
-        target.set_meta("health",hp)
+        target.set_meta("health", hp)
         if hit_marker:
             hit_marker.visible = true
             hit_marker.modulate = Color(1,1,1,1)
@@ -355,7 +355,6 @@ if obj is Area3D and obj.has_meta("hit_zone"):
             target.queue_free()
             if kills >= 5:
                 _finish(true)
-
 func _reload() -> void:
     if weapon != "FACAO":
         ammo = int(WEAPONS[weapon].ammo)
