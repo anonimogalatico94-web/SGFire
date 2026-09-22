@@ -1,6 +1,6 @@
 [application]
-config/name="SGFire — Primeiro Teste Android"
-run/main_scene="res://Boot.tscn"
+config/name="SGFire"\nconfig/icon="res://icon.svg"
+run/main_scene="res://Main.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 
 [display]
