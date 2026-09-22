@@ -29,7 +29,7 @@ jobs:
             SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/16.0/bin/sdkmanager"
           fi
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.1" "ndk;28.1.13356709"
+          "$SDKMANAGER" "platform-tools" "platforms;android-33" "platforms;android-35" "build-tools;33.0.2" "build-tools;35.0.1" "ndk;28.1.13356709"
 
       - name: Install Godot 4.4.1
         run: |
