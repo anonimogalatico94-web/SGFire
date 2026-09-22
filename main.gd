@@ -52,15 +52,10 @@ func _ready() -> void:
 
 
 func _start_lobby_audio() -> void:
+    # Áudio opcional: o APK deve iniciar mesmo sem arquivo externo.
     lobby_music = AudioStreamPlayer.new()
     lobby_music.name = "LobbyAmbient"
-    var stream := load("res://audio/lobby_ambient.wav") as AudioStreamWAV
     add_child(lobby_music)
-    if stream:
-        lobby_music.stream = stream
-        lobby_music.volume_db = -14.0
-        lobby_music.bus = "Master"
-        lobby_music.play()
 
 func _physics_process(delta: float) -> void:
     if game_over:
