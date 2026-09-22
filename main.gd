@@ -309,7 +309,7 @@ func _enemy_ai(delta: float) -> void:
             enemy.velocity = Vector3.ZERO
         enemy.look_at(Vector3(player.global_position.x, enemy.global_position.y, player.global_position.z), Vector3.UP)
         if dist <= 28.0 and shoot_cd <= 0.0:
-            var from := enemy.global_position + Vector3.UP * 1.15
+            var from: Vector3 = enemy.global_position + Vector3.UP * 1.15
             var to := player.global_position + Vector3.UP * 1.0
             var query := PhysicsRayQueryParameters3D.create(from, to)
             var hit := get_world_3d().direct_space_state.intersect_ray(query)
