@@ -2,7 +2,7 @@
 config/name="SGFire"
 config/icon="res://icon.svg"
 run/main_scene="res://Boot.tscn"
-config/version="0.31.0"
+config/version="0.32.0"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 
 [display]
