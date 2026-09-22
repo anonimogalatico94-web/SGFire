@@ -56,13 +56,15 @@ jobs:
         run: |
           set -euxo pipefail
           rm -rf android
-          mkdir -p android
-          unzip -q /tmp/godot_templates/templates/android_source.zip -d android
+          timeout 90s godot --headless --editor --path . --install-android-build-template || true
+          if [ ! -f android/build.gradle ]; then
+            mkdir -p android
+            unzip -q /tmp/godot_templates/templates/android_source.zip -d android
+          fi
           test -f android/build.gradle
           test -f android/settings.gradle
           test -f android/gradlew
           chmod +x android/gradlew
-          echo "Android Gradle template installed."
 
       - name: Configure Godot Android paths
         shell: bash
@@ -70,15 +72,21 @@ jobs:
           set -euxo pipefail
           mkdir -p "$HOME/.config/godot"
           cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
-          [gd_resource type="EditorSettings" format=3]
+[gd_resource type="EditorSettings" format=3]
 
-          [resource]
-          export/android/java_sdk_path = "$JAVA_HOME"
-          export/android/android_sdk_path = "$ANDROID_HOME"
-          export/android/debug_keystore = "$HOME/.android/debug.keystore"
-          export/android/debug_keystore_user = "androiddebugkey"
-          export/android/debug_keystore_pass = "android"
-          EOF
+[resource]
+export/android/java_sdk_path = "$JAVA_HOME"
+export/android/android_sdk_path = "$ANDROID_HOME"
+export/android/debug_keystore = "$HOME/.android/debug.keystore"
+export/android/debug_keystore_user = "androiddebugkey"
+export/android/debug_keystore_pass = "android"
+EOF
+
+      - name: Verify Android template
+        run: |
+          test -f android/build.gradle
+          test -f android/settings.gradle
+          test -f android/gradlew
 
       - name: Verify project
         run: godot --headless --editor --quit --path .
