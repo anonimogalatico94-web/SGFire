@@ -60,6 +60,7 @@ jobs:
         run: |
           set -eux
           godot --headless --editor --quit --path .
+            timeout 15s godot --headless --path . --quit-after 5 || test $? -eq 124
 
       - name: Export A03-compatible APK
         run: |
