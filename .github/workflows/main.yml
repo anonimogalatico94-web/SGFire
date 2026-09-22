@@ -8,68 +8,85 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Baixar SGFire
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configurar Godot
-        uses: chickensoft-games/setup-godot@v2
-        with:
-          version: 4.4.1
-          use-dotnet: false
-          include-templates: true
-
-      - name: Configurar Java
-        uses: actions/setup-java@v4
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Configurar Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: ''
-
-      - name: Preparar Android SDK
+      - name: Prepare Android SDK
         shell: bash
         run: |
-          set -eux
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.1" "cmdline-tools;latest" "cmake;3.10.2.4988404" "ndk;28.1.13356709"
+          set -euxo pipefail
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-35" "build-tools;35.0.1" "cmake;3.10.2.4988404" "ndk;28.1.13356709"
           mkdir -p "$HOME/.android"
           if [ ! -f "$HOME/.android/debug.keystore" ]; then
             keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           fi
-          mkdir -p "$HOME/.config/godot"
-          printf '%s\n' \
-            '[gd_resource type="EditorSettings" format=3]' \
-            '' \
-            '[resource]' \
-            "export/android/java_sdk_path = \"$JAVA_HOME\"" \
-            "export/android/android_sdk_path = \"$ANDROID_HOME\"" \
-            "export/android/debug_keystore = \"$HOME/.android/debug.keystore\"" \
-            'export/android/debug_keystore_user = "androiddebugkey"' \
-            'export/android/debug_keystore_pass = "android"' \
-            'export/android/force_system_user = false' \
-            > "$HOME/.config/godot/editor_settings-4.4.tres"
 
-      - name: Validar projeto
-        run: godot --headless --path . --import --quit-after 1
-
-      - name: Exportar Android
-        env:
-          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: /home/runner/.android/debug.keystore
-          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
-          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+      - name: Download Godot 4.4.1
+        shell: bash
         run: |
-          set -eux
-          mkdir -p build
-          godot --headless --verbose --path . --export-debug "Android" build/SGFire.apk
+          set -euxo pipefail
+          wget -q https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip
+          unzip -q Godot_v4.4.1-stable_linux.x86_64.zip
+          chmod +x Godot_v4.4.1-stable_linux.x86_64
+          sudo mv Godot_v4.4.1-stable_linux.x86_64 /usr/local/bin/godot
 
-      - name: Enviar APK
+      - name: Install Godot Android export templates
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.4.1.stable"
+          wget -q https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_export_templates.tpz
+          unzip -q Godot_v4.4.1-stable_export_templates.tpz -d /tmp/godot_templates
+          cp -R /tmp/godot_templates/templates/* "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
+
+      - name: Configure Godot Android paths
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p "$HOME/.config/godot"
+          cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/java_sdk_path = "$JAVA_HOME"
+          export/android/android_sdk_path = "$ANDROID_HOME"
+          export/android/debug_keystore = "$HOME/.android/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          EOF
+
+      - name: Verify project
+        run: godot --headless --editor --quit --path .
+
+      - name: Export SGFire APK
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p build
+          godot --headless --path . --export-debug "Android" build/SGFire.apk
+
+      - name: Verify APK
+        shell: bash
+        run: |
+          set -euxo pipefail
+          test -s build/SGFire.apk
+          file build/SGFire.apk
+          unzip -l build/SGFire.apk | grep -E "AndroidManifest.xml|lib/arm64-v8a|lib/armeabi-v7a"
+
+      - name: Upload SGFire APK
         uses: actions/upload-artifact@v4
         with:
           name: SGFire-APK
           path: build/SGFire.apk
           if-no-files-found: error
+          retention-days: 14
