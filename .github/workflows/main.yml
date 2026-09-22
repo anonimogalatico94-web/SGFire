@@ -49,6 +49,12 @@ jobs:
           unzip -q Godot_v4.4.1-stable_export_templates.tpz -d /tmp/godot_templates
           cp -R /tmp/godot_templates/templates/* "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
 
+      - name: Install project Android build template
+        shell: bash
+        run: |
+          set -euxo pipefail
+          godot --headless --editor --path . --install-android-build-template
+
       - name: Configure Godot Android paths
         shell: bash
         run: |
