@@ -1,4 +1,4 @@
-name: SGFire Android APK
+name: SGFire Android APK - A03 compatibility
 
 on:
   push:
@@ -13,9 +13,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify runner
+      - name: Verify project
         run: |
-          echo "SGFire Actions runner OK"
+          set -eux
           test -f project.godot
           test -f export_presets.cfg
 
@@ -40,7 +40,7 @@ jobs:
           sudo mv Godot_v4.4.1-stable_linux.x86_64 /usr/local/bin/godot
           godot --version
 
-      - name: Install Godot Android templates
+      - name: Install matching Android templates
         run: |
           set -eux
           curl -L --fail --retry 3 -o templates.tpz https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_export_templates.tpz
@@ -50,31 +50,33 @@ jobs:
           mkdir -p "$HOME/.local/share/godot/export_templates/4.4.1.stable"
           cp -a /tmp/godot_templates/templates/. "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
 
-      - name: Configure Android signing
+      - name: Configure reproducible debug signing
         run: |
           set -eux
           mkdir -p "$HOME/.android"
-          if [ ! -f "$HOME/.android/debug.keystore" ]; then
-            keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-          fi
+          keytool -genkeypair -v             -keystore "$HOME/.android/debug.keystore"             -storepass android             -alias androiddebugkey             -keypass android             -keyalg RSA -keysize 2048 -validity 10000             -dname "CN=Android Debug,O=Android,C=US"
 
       - name: Validate Godot project
         run: |
           set -eux
           godot --headless --editor --quit --path .
 
-      - name: Export SGFire APK
+      - name: Export A03-compatible APK
         run: |
           set -eux
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/SGFire.apk
-          test -s build/SGFire.apk
-          file build/SGFire.apk
-          unzip -l build/SGFire.apk | head -30
+          godot --headless --path . --export-debug "Android" build/SGFire-A03.apk
+          test -s build/SGFire-A03.apk
+          file build/SGFire-A03.apk
+          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-A03.apk
+          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-A03.apk | tee build/apk-badging.txt
+          unzip -l build/SGFire-A03.apk | head -40
 
-      - name: Upload SGFire APK
+      - name: Upload SGFire A03 APK
         uses: actions/upload-artifact@v4
         with:
-          name: SGFire-APK
-          path: build/SGFire.apk
+          name: SGFire-A03-APK
+          path: |
+            build/SGFire-A03.apk
+            build/apk-badging.txt
           retention-days: 14
