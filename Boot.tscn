@@ -29,7 +29,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="VBox" type="VBoxContainer" parent="Center"]
-custom_minimum_size = Vector2(600, 260)
+custom_minimum_size = Vector2(600, 320)
 layout_mode = 2
 theme_override_constants/separation = 18
 
@@ -41,12 +41,18 @@ theme_override_font_sizes/font_size = 56
 
 [node name="Subtitle" type="Label" parent="Center/VBox"]
 layout_mode = 2
-text = "PRIMEIRO TESTE • ANDROID"
+text = "PRIMEIRO TESTE • ANDROID A03"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 24
 
 [node name="Status" type="Label" parent="Center/VBox"]
 layout_mode = 2
-text = "INICIALIZANDO..."
+text = "PRONTO PARA O TESTE"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 22
+
+[node name="StartButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+text = "INICIAR SGFIRE"
+theme_override_font_sizes/font_size = 28
