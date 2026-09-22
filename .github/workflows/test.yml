@@ -49,3 +49,32 @@ jobs:
           unzip -q templates.tpz -d /tmp/godot_templates
           mkdir -p "$HOME/.local/share/godot/export_templates/4.4.1.stable"
           cp -a /tmp/godot_templates/templates/. "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
+
+      - name: Configure Android signing
+        run: |
+          set -eux
+          mkdir -p "$HOME/.android"
+          if [ ! -f "$HOME/.android/debug.keystore" ]; then
+            keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+      - name: Validate Godot project
+        run: |
+          set -eux
+          godot --headless --editor --quit --path .
+
+      - name: Export SGFire APK
+        run: |
+          set -eux
+          mkdir -p build
+          godot --headless --path . --export-debug "Android" build/SGFire.apk
+          test -s build/SGFire.apk
+          file build/SGFire.apk
+          unzip -l build/SGFire.apk | head -30
+
+      - name: Upload SGFire APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SGFire-APK
+          path: build/SGFire.apk
+          retention-days: 14
