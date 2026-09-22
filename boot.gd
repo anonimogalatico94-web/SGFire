@@ -3,10 +3,8 @@ extends Control
 var started := false
 
 func _ready() -> void:
-    get_viewport().set_embedding_subwindows(false)
     $Center/VBox/Status.text = "INICIALIZANDO SGFIRE..."
-    await get_tree().create_timer(0.8).timeout
-    _start_game()
+    call_deferred("_start_game")
 
 func _start_game() -> void:
     if started:
@@ -14,4 +12,9 @@ func _start_game() -> void:
     started = true
     $Center/VBox/Status.text = "CARREGANDO CENÁRIO..."
     await get_tree().process_frame
-    get_tree().change_scene_to_file("res://Main.tscn")
+    var scene := load("res://Main.tscn") as PackedScene
+    if scene == null:
+        started = false
+        $Center/VBox/Status.text = "ERRO AO CARREGAR O CENÁRIO"
+        return
+    get_tree().change_scene_to_packed(scene)
