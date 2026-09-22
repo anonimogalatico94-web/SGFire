@@ -1,5 +1,6 @@
 [application]
-config/name="SGFire"\nconfig/icon="res://icon.svg"
+config/name="SGFire"
+config/icon="res://icon.svg"
 run/main_scene="res://Boot.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 
