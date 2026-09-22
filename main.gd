@@ -300,8 +300,8 @@ func _enemy_ai(delta: float) -> void:
         var attack_cd := float(enemy.get_meta("attack_cd", 0.0))
         attack_cd = maxf(0.0, attack_cd - delta)
         enemy.set_meta("attack_cd", attack_cd)
-        var to_player := player.global_position - enemy.global_position
-        var dist := to_player.length()
+        var to_player: Vector3 = player.global_position - enemy.global_position
+        var dist: float = to_player.length()
         if dist > 2.1:
             enemy.velocity = to_player.normalized() * 1.15
             enemy.move_and_slide()
@@ -326,7 +326,7 @@ func _fire() -> void:
             return
         ammo -= 1
     var from := camera.global_position
-    var to := from + -camera.global_transform.basis.z * data.range
+    var to: Vector3 = from + -camera.global_transform.basis.z * float(data.range)
     var query := PhysicsRayQueryParameters3D.create(from, to)
     query.collide_with_areas = true
     var hit := get_world_3d().direct_space_state.intersect_ray(query)
@@ -415,7 +415,7 @@ func _input(event: InputEvent) -> void:
             joystick_pos = event.position
             _update_joystick()
         elif event.index == look_id:
-            var d := event.position - last_look
+            var d: Vector2 = event.position - last_look
             last_look = event.position
             yaw -= d.x * look_sensitivity
             pitch = clampf(pitch - d.y * look_sensitivity, -1.2, 1.2)
