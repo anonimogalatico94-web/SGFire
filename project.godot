@@ -1,8 +1,7 @@
 [application]
 config/name="SGFire A03 Diagnostic"
-config/icon="res://icon.svg"
 run/main_scene="res://A03Diagnostic.tscn"
-config/version="0.46.2"
+config/version="0.47.0"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 
 [display]
