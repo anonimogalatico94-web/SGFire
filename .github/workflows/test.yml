@@ -2,57 +2,59 @@ name: SGFire Android APK - A03 compatibility
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  test:
+  android-apk:
     runs-on: ubuntu-latest
-    env:
-      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
-      ANDROID_HOME: /usr/local/lib/android/sdk
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify project
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android build components
+        run: |
+          set -eux
+          sdkmanager --licenses >/dev/null || true
+          sdkmanager             "platform-tools"             "platforms;android-35"             "build-tools;35.0.1"             "ndk;28.1.13356709"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          java -version
+          sdkmanager --list_installed | grep -E 'platform-tools|platforms;android-35|build-tools;35.0.1|ndk;28.1.13356709' || true
+
+      - name: Verify Godot project
         run: |
           set -eux
           test -f project.godot
           test -f export_presets.cfg
 
-      - name: Prepare Android SDK and Java
-        run: |
-          set -eux
-          SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
-          if [ ! -x "$SDKMANAGER" ]; then
-            SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/16.0/bin/sdkmanager"
-          fi
-          yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" "platform-tools" "platforms;android-33" "platforms;android-35" "build-tools;33.0.2" "build-tools;35.0.1" "ndk;28.1.13356709"
-          test -n "$JAVA_HOME"
-          test -x "$JAVA_HOME/bin/java"
-          java -version
-
       - name: Install Godot 4.4.1
         run: |
           set -eux
-          curl -L --fail --retry 3 -o godot.zip https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip
+          curl -L --fail --retry 3             -o godot.zip             https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip
           unzip -q godot.zip
           chmod +x Godot_v4.4.1-stable_linux.x86_64
           sudo mv Godot_v4.4.1-stable_linux.x86_64 /usr/local/bin/godot
           godot --version
 
-      - name: Install matching Android templates
+      - name: Install matching Godot Android templates
         run: |
           set -eux
-          curl -L --fail --retry 3 -o templates.tpz https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_export_templates.tpz
+          curl -L --fail --retry 3             -o templates.tpz             https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_export_templates.tpz
           rm -rf /tmp/godot_templates
           mkdir -p /tmp/godot_templates
           unzip -q templates.tpz -d /tmp/godot_templates
           mkdir -p "$HOME/.local/share/godot/export_templates/4.4.1.stable"
-          cp -a /tmp/godot_templates/templates/. "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
+          cp -a /tmp/godot_templates/templates/.             "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
 
       - name: Configure Godot Android paths
         run: |
@@ -65,32 +67,31 @@ jobs:
 export/android/android_sdk_path = "$ANDROID_SDK_ROOT"
 export/android/java_sdk_path = "$JAVA_HOME"
 EOF
-          grep -E "android_sdk_path|java_sdk_path" "$HOME/.config/godot/editor_settings-4.tres"
+          grep -E "android_sdk_path|java_sdk_path"             "$HOME/.config/godot/editor_settings-4.tres"
 
-      - name: Configure stable debug signing
+      - name: Configure debug signing
         run: |
           set -eux
           mkdir -p "$HOME/.android"
-          base64 -d .github/android/sgfire-debug.keystore.b64 > "$HOME/.android/debug.keystore"
+          base64 -d .github/android/sgfire-debug.keystore.b64             > "$HOME/.android/debug.keystore"
           chmod 600 "$HOME/.android/debug.keystore"
-          keytool -list -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey
+          keytool -list             -keystore "$HOME/.android/debug.keystore"             -storepass android             -alias androiddebugkey
 
-      - name: Validate Godot project
+      - name: Validate project
         run: |
           set -eux
           godot --headless --editor --quit --path .
-          timeout 15s godot --headless --path . --quit-after 5 || test $? -eq 124
+          timeout 20s godot --headless --path . --quit-after 5 || test $? -eq 124
 
-      - name: Export A03-compatible APK
+      - name: Export A03 APK
         run: |
           set -eux
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/SGFire-A03.apk
+          godot --headless --path .             --export-debug "Android" build/SGFire-A03.apk
           test -s build/SGFire-A03.apk
           file build/SGFire-A03.apk
-          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-A03.apk
-          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-A03.apk | tee build/apk-badging.txt
-          unzip -l build/SGFire-A03.apk | head -40
+          "$ANDROID_SDK_ROOT/build-tools/35.0.1/apksigner"             verify --verbose build/SGFire-A03.apk
+          "$ANDROID_SDK_ROOT/build-tools/35.0.1/aapt"             dump badging build/SGFire-A03.apk | tee build/apk-badging.txt
 
       - name: Upload SGFire A03 APK
         uses: actions/upload-artifact@v4
