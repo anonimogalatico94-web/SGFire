@@ -71,8 +71,6 @@ func _physics_process(delta: float) -> void:
         hit_marker.modulate.a = maxf(0.0, hit_marker.modulate.a - delta * 3.0)
         if hit_marker.modulate.a <= 0.0:
             hit_marker.visible = false
-    if Input.is_action_just_pressed("fire"):
-        _fire()
     match_time = maxf(0.0, match_time - delta)
     recoil = maxf(0.0, recoil - delta * 8.0)
     camera.rotation.x = pitch - recoil
