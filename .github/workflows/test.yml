@@ -42,7 +42,6 @@ jobs:
           rm -rf /tmp/godot_templates
           mkdir -p /tmp/godot_templates
           unzip -q templates.tpz -d /tmp/godot_templates
-          mkdir -p "$HOME/.local/share/gododot/export_templates/4.4.1.stable" || true
           mkdir -p "$HOME/.local/share/godot/export_templates/4.4.1.stable"
           cp -a /tmp/godot_templates/templates/. "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
 
@@ -63,7 +62,6 @@ EOF
           set -eux
           mkdir -p "$HOME/.android"
           keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-          chmod 600 "$HOME/.android/debug.keystore"
 
       - name: Validate Godot project
         run: |
@@ -80,13 +78,10 @@ EOF
           godot --headless --path . --export-debug "Android" build/SGFire-A03.apk
           test -s build/SGFire-A03.apk
           "$ANDROID_SDK_ROOT/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-A03.apk
-          "$ANDROID_SDK_ROOT/build-tools/35.0.1/aapt" dump badging build/SGFire-A03.apk | tee build/apk-badging.txt
 
       - name: Upload SGFire A03 APK
         uses: actions/upload-artifact@v4
         with:
           name: SGFire-A03-APK
-          path: |
-            build/SGFire-A03.apk
-            build/apk-badging.txt
+          path: build/SGFire-A03.apk
           retention-days: 14
