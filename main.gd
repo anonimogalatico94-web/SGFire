@@ -212,7 +212,7 @@ func _build_hud() -> void:
     layer.add_child(crosshair)
     var lobby_title := Label.new()
     lobby_title.position = Vector2(430,24)
-    lobby_title.text = "SGFIRE • CAPÍTULO 4 — 4 VS 3"
+    lobby_title.text = "SGFIRE • 5 VS 5 • TESTE LOCAL"
     lobby_title.add_theme_font_size_override("font_size",22)
     layer.add_child(lobby_title)
 
@@ -276,9 +276,7 @@ func _button(parent: Node, text: String, pos: Vector2, size: Vector2, action: Ca
     return b
 
 func _player_move(delta: float) -> void:
-    var v := Vector2(Input.get_axis("move_left","move_right"), Input.get_axis("move_forward","move_back"))
-    if move_input.length() > 0.1:
-        v = move_input
+    var v := move_input
     var dir := Vector3(v.x,0,v.y)
     dir = dir.rotated(Vector3.UP, yaw).normalized() if dir.length() > 0.01 else Vector3.ZERO
     sprint = v.length() > 0.85
