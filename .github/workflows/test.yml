@@ -69,7 +69,7 @@ jobs:
         run: |
           set -eux
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/SGFire-A03.apk
+          godot --headless --path . --install-android-build-template --export-debug "Android" build/SGFire-A03.apk
           test -s build/SGFire-A03.apk
           file build/SGFire-A03.apk
           "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-A03.apk
