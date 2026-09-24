@@ -15,16 +15,16 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.01, 0.01, 0.02, 1)
+color = Color(0.008, 0.01, 0.018, 1)
 
 [node name="Title" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 220.0
-offset_bottom = 300.0
+offset_top = 180.0
+offset_bottom = 270.0
 grow_horizontal = 2
-theme_override_font_sizes/font_size = 52
+theme_override_font_sizes/font_size = 48
 text = "SGFIRE"
 horizontal_alignment = 1
 
@@ -32,20 +32,20 @@ horizontal_alignment = 1
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 315.0
-offset_bottom = 370.0
+offset_top = 285.0
+offset_bottom = 335.0
 grow_horizontal = 2
-theme_override_font_sizes/font_size = 24
-text = "TESTE ANDROID • BUILD 111"
+theme_override_font_sizes/font_size = 22
+text = "TESTE ANDROID A03"
 horizontal_alignment = 1
 
 [node name="Ready" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 400.0
-offset_bottom = 450.0
+offset_top = 350.0
+offset_bottom = 400.0
 grow_horizontal = 2
-theme_override_font_sizes/font_size = 22
-text = "SGFire carregado"
+theme_override_font_sizes/font_size = 20
+text = "Inicialização segura"
 horizontal_alignment = 1
