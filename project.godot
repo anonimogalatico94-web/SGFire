@@ -1,7 +1,7 @@
 [application]
 config/name="SGFire"
 run/main_scene="res://SafeBoot.tscn"
-config/version="0.58.3"
+config/version="0.58.4"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 
 [display]
@@ -10,7 +10,7 @@ window/size/viewport_height=540
 window/size/window_width_override=960
 window/size/window_height_override=540
 window/stretch/mode="canvas_items"
-window/stretch/aspect="expand"
+window/stretch/aspect="keep"
 
 [rendering]
 renderer/rendering_method="gl_compatibility"
