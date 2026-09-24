@@ -1,6 +1,6 @@
 [application]
 config/name="SGFire"
-run/main_scene="res://SafeBoot.tscn"
+run/main_scene="res://main.tscn"
 config/version="0.58.4"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 
