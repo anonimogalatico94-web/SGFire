@@ -42,6 +42,7 @@ var crosshair: Label
 var hit_marker: Label
 var damage_flash: ColorRect
 var lobby_music: AudioStreamPlayer
+var sponsor_panel: ColorRect
 
 func _ready() -> void:
     _build_world()
@@ -210,9 +211,25 @@ func _build_hud() -> void:
     layer.add_child(crosshair)
     var lobby_title := Label.new()
     lobby_title.position = Vector2(430,24)
-    lobby_title.text = "SGFIRE • 5 VS 5 • TESTE LOCAL"
+    lobby_title.text = "SGFIRE • GM TESTER • OFFLINE"
     lobby_title.add_theme_font_size_override("font_size",22)
     layer.add_child(lobby_title)
+
+    sponsor_panel = ColorRect.new()
+    sponsor_panel.position = Vector2(875,20)
+    sponsor_panel.size = Vector2(360,120)
+    sponsor_panel.color = Color(0.08,0.09,0.12,0.88)
+    layer.add_child(sponsor_panel)
+    var sponsor_title := Label.new()
+    sponsor_title.position = Vector2(895,30)
+    sponsor_title.text = "ÁREA DE TESTE • SEM MARCA"
+    sponsor_title.add_theme_font_size_override("font_size",18)
+    layer.add_child(sponsor_title)
+    var sponsor_info := Label.new()
+    sponsor_info.position = Vector2(895,62)
+    sponsor_info.text = "ROUPA / EQUIPAMENTO\nPATROCÍNIO RESERVADO"
+    sponsor_info.add_theme_font_size_override("font_size",15)
+    layer.add_child(sponsor_info)
 
     hud = Label.new()
     hud.position = Vector2(20,18)
@@ -225,7 +242,7 @@ func _build_hud() -> void:
     pickup_text = Label.new()
     pickup_text.position = Vector2(20,680)
     pickup_text.add_theme_font_size_override("font_size",18)
-    pickup_text.text = "Vertical Slice 2.0 • 180s"
+    pickup_text.text = "GM TESTER • OFFLINE • 180s"
     layer.add_child(pickup_text)
     message = Label.new()
     message.position = Vector2(360,220)
@@ -259,7 +276,7 @@ func _build_hud() -> void:
 
     fire_button = _button(layer,"ATIRAR", Vector2(1060,555), Vector2(180,70), _fire)
     reload_button = _button(layer,"RECARREGAR", Vector2(1060,475), Vector2(180,60), _reload)
-    weapon_button = _button(layer,"ARMA: REVOLVER", Vector2(20,90), Vector2(220,55), _switch_weapon)
+    weapon_button = _button(layer,"EQUIPAMENTO: REVOLVER", Vector2(20,90), Vector2(220,55), _switch_weapon)
     restart_button = _button(layer,"REINICIAR", Vector2(540,365), Vector2(200,65), _restart)
     restart_button.visible = false
 
@@ -371,7 +388,7 @@ func _switch_weapon() -> void:
     var idx := keys.find(weapon)
     weapon = keys[(idx + 1) % keys.size()]
     ammo = int(WEAPONS[weapon].ammo)
-    weapon_button.text = "ARMA: " + weapon
+    weapon_button.text = "EQUIPAMENTO: " + weapon
 
 func _update_hud() -> void:
     if crosshair:
@@ -380,7 +397,7 @@ func _update_hud() -> void:
     var secs := int(match_time) % 60
     hud.text = "SGFire • Zona Sul — São Gabriel/RS (ficcional)\nVida: %d   Abates: %d/5   %s: %s   Tempo: %02d:%02d" % [int(health),kills,weapon,("∞" if weapon == "FACAO" else "%d/%d" % [ammo,WEAPONS[weapon].ammo]),mins,secs]
     if pickup_text:
-        pickup_text.text = ("CORRA • velocidade aumentada" if sprint else "Vertical Slice 2.0 • 180s")
+        pickup_text.text = ("CORRA • velocidade aumentada" if sprint else "GM TESTER • OFFLINE • 180s")
     fps_label.text = "FPS: %d" % Engine.get_frames_per_second()
 
 func _finish(win: bool, reason: String = "") -> void:
