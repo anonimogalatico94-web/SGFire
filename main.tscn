@@ -1,1 +1,6 @@
-[gd_scene load_steps=2 format=3]\n\n[ext_resource path="res://main.gd" type="Script" id="1_main"]\n\n[node name="SGFire" type="Node3D"]\nscript = ExtResource("1_main")\n
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://main.gd" id="1_main"]
+
+[node name="SGFire" type="Node3D"]
+script = ExtResource("1_main")
