@@ -1,7 +1,7 @@
 [application]
 config/name="SGFire"
-run/main_scene="res://A03Test.tscn"
-config/version="0.58.5"
+run/main_scene="res://Prototype.tscn"
+config/version="0.59.0"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 
 [display]
