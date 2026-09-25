@@ -95,7 +95,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SGFire-A03-APK-155
+          name: SGFire-A03-APK-156
           path: |
             build/SGFire-A03.apk
             build/apk-badging.txt
