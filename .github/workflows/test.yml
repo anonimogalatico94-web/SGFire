@@ -1,86 +1,104 @@
-name: SGFire Android APK - A03 playable test
+name: SGFire Android APK - A03 playtest
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  test:
+  android-apk:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
+      GODOT_VERSION: 4.4.1
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
       ANDROID_HOME: /usr/local/lib/android/sdk
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify project
-        run: |
-          set -eux
-          test -f project.godot
-          test -f export_presets.cfg
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
 
-      - name: Prepare Android SDK
-        run: |
-          set -eux
-          SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
-          if [ ! -x "$SDKMANAGER" ]; then
-            SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/16.0/bin/sdkmanager"
-          fi
-          yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" "platform-tools" "platforms;android-33" "build-tools;35.0.1"
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Install Godot 4.4.1
+      - name: Install Android packages
+        shell: bash
         run: |
-          set -eux
-          curl -L --fail --retry 3 -o godot.zip https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.1"
+          adb version
+          aapt version
+
+      - name: Install Godot ${{ env.GODOT_VERSION }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
           unzip -q godot.zip
-          chmod +x Godot_v4.4.1-stable_linux.x86_64
-          sudo mv Godot_v4.4.1-stable_linux.x86_64 /usr/local/bin/godot
+          chmod +x "Godot_v${GODOT_VERSION}-stable_linux.x86_64"
+          sudo mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" /usr/local/bin/godot
           godot --version
 
-      - name: Install matching Android templates
+      - name: Install matching Android export templates
+        shell: bash
         run: |
-          set -eux
-          curl -L --fail --retry 3 -o templates.tpz https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_export_templates.tpz
+          set -euo pipefail
+          curl -L --fail --retry 3 -o templates.tpz "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
           rm -rf /tmp/godot_templates
           mkdir -p /tmp/godot_templates
           unzip -q templates.tpz -d /tmp/godot_templates
-          mkdir -p "$HOME/.local/share/godot/export_templates/4.4.1.stable"
-          cp -a /tmp/godot_templates/templates/. "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
+          mkdir -p "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          cp -a /tmp/godot_templates/templates/. "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/"
 
-      - name: Configure stable debug signing
+      - name: Prepare debug keystore
+        shell: bash
         run: |
-          set -eux
+          set -euo pipefail
           mkdir -p "$HOME/.android"
           base64 -d .github/android/sgfire-debug.keystore.b64 > "$HOME/.android/debug.keystore"
           chmod 600 "$HOME/.android/debug.keystore"
           keytool -list -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey
 
-      - name: Validate Godot project
+      - name: Validate project
+        shell: bash
         run: |
-          set -eux
+          set -euo pipefail
+          test -f project.godot
+          test -f export_presets.cfg
+          test -f A03Test.tscn
+          test -f A03Test.gd
+          test -f Prototype.tscn
+          test -f prototype.gd
           godot --headless --editor --quit --path .
-          timeout 15s godot --headless --path . --quit-after 5 || test $? -eq 124
+          timeout 15s godot --headless --path . --quit-after 5
 
-      - name: Export A03-compatible APK
+      - name: Export APK
+        shell: bash
         run: |
-          set -eux
+          set -euo pipefail
+          rm -rf build
           mkdir -p build
           godot --headless --path . --export-debug "Android" build/SGFire-A03.apk
           test -s build/SGFire-A03.apk
-          file build/SGFire-A03.apk
           "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-A03.apk
           "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-A03.apk | tee build/apk-badging.txt
-          unzip -l build/SGFire-A03.apk | head -40
 
-      - name: Upload SGFire A03 APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SGFire-A03-APK
+          name: SGFire-A03-APK-154
           path: |
             build/SGFire-A03.apk
             build/apk-badging.txt
+          if-no-files-found: error
           retention-days: 14
