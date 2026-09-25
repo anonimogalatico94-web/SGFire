@@ -21,6 +21,8 @@ var bots: Array[CharacterBody3D] = []
 var bot_timers: Dictionary = {}
 var hud_status: Label
 var eliminated_bots := 0
+var bot_flash: Dictionary = {}
+var damage_flash: ColorRect
 var health_label: Label
 var score_label: Label
 
@@ -38,6 +40,7 @@ func _physics_process(delta: float) -> void:
     if Input.is_action_pressed("ui_accept") or mobile_fire:
         _player_fire()
     _update_bots(delta)
+    _update_effects(delta)
     _update_hud()
 
 func _build_world() -> void:
@@ -185,7 +188,7 @@ func _build_hud() -> void:
     panel.add_child(score_label)
 
     hud_status = Label.new()
-    hud_status.text = "NOITE • SÃO GABRIEL–RS • BOTS"
+    hud_status.text = "NOITE • SÃO GABRIEL–RS • BOTS • COMBATE"
     hud_status.position = Vector2(18,104)
     hud_status.add_theme_font_size_override("font_size", 15)
     layer.add_child(hud_status)
@@ -196,6 +199,21 @@ func _build_hud() -> void:
     _make_touch_button(layer, "◀", Vector2(8,404), "left")
     _make_touch_button(layer, "▶", Vector2(148,404), "right")
     _make_touch_button(layer, "FIRE", Vector2(805,404), "fire")
+
+    var crosshair := Label.new()
+    crosshair.text = "+"
+    crosshair.position = Vector2(468,238)
+    crosshair.size = Vector2(30,60)
+    crosshair.add_theme_font_size_override("font_size", 28)
+    crosshair.modulate = Color(1,1,1,0.85)
+    layer.add_child(crosshair)
+
+    damage_flash = ColorRect.new()
+    damage_flash.color = Color(0.8, 0.0, 0.0, 0.0)
+    damage_flash.position = Vector2.ZERO
+    damage_flash.size = Vector2(960,540)
+    damage_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    layer.add_child(damage_flash)
 
 func _make_touch_button(layer: CanvasLayer, label_text: String, pos: Vector2, action: String) -> void:
     var b := Button.new()
@@ -254,10 +272,12 @@ func _player_fire() -> void:
     var query := PhysicsRayQueryParameters3D.create(origin, target)
     query.exclude = [player]
     var hit := get_world_3d().direct_space_state.intersect_ray(query)
+    _spawn_tracer(origin, hit.get("position", target), Color("#fff1a8"))
     if hit.has("collider") and hit.collider in bots:
         player_score += 100
         eliminated_bots += 1
         var bot: CharacterBody3D = hit.collider
+        bot_flash[bot] = 0.14
         _respawn_bot(bot)
 
 func _update_bots(delta: float) -> void:
@@ -281,8 +301,10 @@ func _bot_fire(bot: CharacterBody3D) -> void:
     var query := PhysicsRayQueryParameters3D.create(origin, target)
     query.exclude = [bot]
     var hit := get_world_3d().direct_space_state.intersect_ray(query)
+    _spawn_tracer(origin, target, Color("#ff5a5a"))
     if hit.has("collider") and hit.collider == player:
         player_health = max(0, player_health - 5)
+        damage_flash.color.a = 0.28
         if player_health == 0:
             player_health = 100
             player.position = Vector3(0, 1.1, 16)
@@ -294,3 +316,35 @@ func _respawn_bot(bot: CharacterBody3D) -> void:
 func _update_hud() -> void:
     health_label.text = "VIDA: %d" % player_health
     score_label.text = "PONTOS: %d  •  ELIMINADOS: %d/%d" % [player_score, eliminated_bots, bots.size()]
+
+func _spawn_tracer(from_pos: Vector3, to_pos: Vector3, color: Color) -> void:
+    var length := from_pos.distance_to(to_pos)
+    if length < 0.1:
+        return
+    var tracer := MeshInstance3D.new()
+    var mesh := BoxMesh.new()
+    mesh.size = Vector3(0.045, 0.045, length)
+    var mat := StandardMaterial3D.new()
+    mat.albedo_color = color
+    mat.emission_enabled = true
+    mat.emission = color
+    mat.emission_energy_multiplier = 2.0
+    mesh.material = mat
+    tracer.mesh = mesh
+    tracer.global_position = (from_pos + to_pos) * 0.5
+    add_child(tracer)
+    tracer.look_at(to_pos, Vector3.UP)
+    get_tree().create_timer(0.055).timeout.connect(tracer.queue_free)
+
+func _update_effects(delta: float) -> void:
+    if damage_flash != null:
+        damage_flash.color.a = move_toward(damage_flash.color.a, 0.0, delta * 2.8)
+    for bot in bots:
+        if not is_instance_valid(bot):
+            continue
+        var t := float(bot_flash.get(bot, 0.0))
+        if t > 0.0:
+            t -= delta
+            bot_flash[bot] = t
+        elif bot_flash.has(bot):
+            bot_flash.erase(bot)
