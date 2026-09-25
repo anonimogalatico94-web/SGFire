@@ -88,7 +88,7 @@ jobs:
           rm -rf build
           mkdir -p build
           godot --headless --path . --export-debug "Android" build/SGFire-A03-162.apk
-          test -s build/SGFire-A03.apk
+          test -s build/SGFire-A03-162.apk
           "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-A03.apk
           "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-A03.apk | tee build/apk-badging.txt
 
@@ -97,7 +97,7 @@ jobs:
         with:
           name: SGFire-A03-APK-162
           path: |
-            build/SGFire-A03.apk
+            build/SGFire-A03-162.apk
             build/apk-badging.txt
           if-no-files-found: error
           retention-days: 14
