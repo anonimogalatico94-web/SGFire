@@ -1,4 +1,4 @@
-name: SGFire Android APK - A03 playtest 160
+name: SGFire Android APK - A03 playtest 161
 
 on:
   push:
@@ -95,7 +95,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SGFire-A03-APK-160
+          name: SGFire-A03-APK-161
           path: |
             build/SGFire-A03.apk
             build/apk-badging.txt
