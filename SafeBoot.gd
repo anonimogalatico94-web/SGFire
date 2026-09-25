@@ -17,7 +17,7 @@ func _ready() -> void:
     bg.add_child(title)
 
     var status := Label.new()
-    status.text = "TESTE ANDROID A03 • BUILD 150"
+    status.text = "TESTE ANDROID A03 • BUILD 152"
     status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     status.position = Vector2(80, 225)
     status.size = Vector2(800, 50)
