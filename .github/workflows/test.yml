@@ -1,4 +1,5 @@
 name: SGFire Android APK - A03 playtest 167
+# trigger: clean-install-167
 
 on:
   push:
