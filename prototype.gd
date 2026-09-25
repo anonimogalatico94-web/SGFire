@@ -20,6 +20,7 @@ var fire_timer := 0.0
 var bots: Array[CharacterBody3D] = []
 var bot_timers: Dictionary = {}
 var hud_status: Label
+var eliminated_bots := 0
 var health_label: Label
 var score_label: Label
 
@@ -189,11 +190,12 @@ func _build_hud() -> void:
     hud_status.add_theme_font_size_override("font_size", 15)
     layer.add_child(hud_status)
 
-    _make_touch_button(layer, "▲", Vector2(86,560), "forward")
-    _make_touch_button(layer, "▼", Vector2(86,640), "back")
-    _make_touch_button(layer, "◀", Vector2(16,600), "left")
-    _make_touch_button(layer, "▶", Vector2(156,600), "right")
-    _make_touch_button(layer, "FIRE", Vector2(1070,570), "fire")
+    # Controles dimensionados para a tela 960x540 e reposicionados para o A03.
+    _make_touch_button(layer, "▲", Vector2(78,360), "forward")
+    _make_touch_button(layer, "▼", Vector2(78,448), "back")
+    _make_touch_button(layer, "◀", Vector2(8,404), "left")
+    _make_touch_button(layer, "▶", Vector2(148,404), "right")
+    _make_touch_button(layer, "FIRE", Vector2(805,404), "fire")
 
 func _make_touch_button(layer: CanvasLayer, label_text: String, pos: Vector2, action: String) -> void:
     var b := Button.new()
@@ -254,6 +256,7 @@ func _player_fire() -> void:
     var hit := get_world_3d().direct_space_state.intersect_ray(query)
     if hit.has("collider") and hit.collider in bots:
         player_score += 100
+        eliminated_bots += 1
         var bot: CharacterBody3D = hit.collider
         _respawn_bot(bot)
 
@@ -290,4 +293,4 @@ func _respawn_bot(bot: CharacterBody3D) -> void:
 
 func _update_hud() -> void:
     health_label.text = "VIDA: %d" % player_health
-    score_label.text = "PONTOS: %d  •  BOTS: %d" % [player_score, bots.size()]
+    score_label.text = "PONTOS: %d  •  ELIMINADOS: %d/%d" % [player_score, eliminated_bots, bots.size()]
