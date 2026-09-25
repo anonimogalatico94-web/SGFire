@@ -1,5 +1,5 @@
-name: SGFire Android APK - A03 playtest 167
-# trigger: clean-install-167
+name: SGFire Android APK - A03 playtest 168
+# trigger: clean-install-168
 
 on:
   push:
@@ -88,17 +88,17 @@ jobs:
           set -euo pipefail
           rm -rf build
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/SGFire-A03-167.apk
-          test -s build/SGFire-A03-167.apk
-          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-A03-167.apk
-          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-A03-167.apk | tee build/apk-badging.txt
+          godot --headless --path . --export-debug "Android" build/SGFire-A03-168.apk
+          test -s build/SGFire-A03-168.apk
+          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-A03-168.apk
+          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-A03-168.apk | tee build/apk-badging.txt
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SGFire-A03-APK-167
+          name: SGFire-A03-APK-168
           path: |
-            build/SGFire-A03-167.apk
+            build/SGFire-A03-168.apk
             build/apk-badging.txt
           if-no-files-found: error
           retention-days: 14
@@ -109,7 +109,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh release create "a03-playtest-167" build/SGFire-A03-167.apk \
-            --title "SGFire A03 Playtest 167" \
+          gh release create "a03-playtest-168" build/SGFire-A03-168.apk \
+            --title "SGFire A03 Playtest 168" \
             --notes "Build de combate offline para Samsung A03: controles touchscreen, bots, tiros, dano visual e cenário noturno. Validar instalação e combate antes de expandir o jogo." \
             --repo "${{ github.repository }}"
