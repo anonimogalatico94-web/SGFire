@@ -224,7 +224,7 @@ func _unhandled_input(event: InputEvent) -> void:
         elif not event.pressed and event.index == look_touch:
             look_touch = -1
     elif event is InputEventScreenDrag and event.index == look_touch:
-        var delta := event.position - last_look
+        var delta: Vector2 = event.position - last_look
         last_look = event.position
         player.rotate_y(-delta.x * 0.006)
         camera.rotation.x = clampf(camera.rotation.x - delta.y * 0.004, -1.15, 1.15)
