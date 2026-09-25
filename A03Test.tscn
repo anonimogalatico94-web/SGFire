@@ -1,4 +1,6 @@
-[gd_scene format=3]
+[gd_scene load_steps=2 format=3]
+
+[ext_resource path="res://A03Test.gd" type="Script" id="1"]
 
 [node name="A03Test" type="Control"]
 layout_mode = 3
@@ -7,6 +9,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
@@ -20,10 +23,10 @@ color = Color(0.035, 0.04, 0.055, 1)
 [node name="Title" type="Label" parent="."]
 layout_mode = 0
 offset_left = 40.0
-offset_top = 180.0
+offset_top = 150.0
 offset_right = 920.0
-offset_bottom = 260.0
-text = "SGFire\nTESTE ANDROID A03"
+offset_bottom = 230.0
+text = "SGFIRE\nTESTE ANDROID A03"
 horizontal_alignment = 1
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 32
@@ -31,9 +34,9 @@ theme_override_font_sizes/font_size = 32
 [node name="Status" type="Label" parent="."]
 layout_mode = 0
 offset_left = 40.0
-offset_top = 285.0
+offset_top = 260.0
 offset_right = 920.0
-offset_bottom = 335.0
-text = "INICIALIZAÇÃO SEGURA OK"
+offset_bottom = 325.0
+text = "INICIALIZAÇÃO SEGURA • BUILD 154"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 20
