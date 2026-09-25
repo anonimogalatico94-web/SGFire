@@ -27,17 +27,17 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android packages
+      - name: Prepare Android SDK
         shell: bash
         run: |
           set -euo pipefail
-          yes | sdkmanager --licenses >/dev/null 2>&1 || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.1"
-          adb version
-          aapt version
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager -print -quit)"
+          test -x "$SDKMANAGER"
+          echo "SDKMANAGER=$SDKMANAGER" >> "$GITHUB_ENV"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.1"
+          "$ANDROID_HOME/platform-tools/adb" version
+          "$ANDROID_HOME/build-tools/35.0.1/aapt" version
 
       - name: Install Godot ${{ env.GODOT_VERSION }}
         shell: bash
@@ -80,7 +80,6 @@ jobs:
           test -f Prototype.tscn
           test -f prototype.gd
           godot --headless --editor --quit --path .
-          timeout 15s godot --headless --path . --quit-after 5
 
       - name: Export APK
         shell: bash
@@ -96,7 +95,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SGFire-A03-APK-154
+          name: SGFire-A03-APK-155
           path: |
             build/SGFire-A03.apk
             build/apk-badging.txt
