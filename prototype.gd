@@ -50,7 +50,7 @@ func _build_world() -> void:
     environment.background_color = Color("#050811")
     environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
     environment.ambient_light_color = Color("#33405f")
-    environment.ambient_light_energy = 0.32
+    environment.ambient_light_energy = 0.46
     environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
     env.environment = environment
     add_child(env)
@@ -58,7 +58,7 @@ func _build_world() -> void:
     var moon := DirectionalLight3D.new()
     moon.rotation_degrees = Vector3(-55.0, -25.0, 0.0)
     moon.light_color = Color("#8ca6d8")
-    moon.light_energy = 0.65
+    moon.light_energy = 0.82
     moon.shadow_enabled = true
     add_child(moon)
 
@@ -77,7 +77,7 @@ func _build_world() -> void:
         var lamp := OmniLight3D.new()
         lamp.position = p
         lamp.light_color = Color("#ffd38a")
-        lamp.light_energy = 3.0
+        lamp.light_energy = 3.8
         lamp.omni_range = 9.0
         add_child(lamp)
 
@@ -165,8 +165,9 @@ func _build_bots() -> void:
 func _build_hud() -> void:
     var layer := CanvasLayer.new()
     add_child(layer)
+
     var panel := ColorRect.new()
-    panel.color = Color(0.0, 0.0, 0.0, 0.34)
+    panel.color = Color(0.0, 0.0, 0.0, 0.30)
     panel.position = Vector2(16,16)
     panel.size = Vector2(330,92)
     layer.add_child(panel)
@@ -193,12 +194,19 @@ func _build_hud() -> void:
     hud_status.add_theme_font_size_override("font_size", 15)
     layer.add_child(hud_status)
 
-    # Controles dimensionados para a tela 960x540 e reposicionados para o A03.
-    _make_touch_button(layer, "▲", Vector2(78,360), "forward")
-    _make_touch_button(layer, "▼", Vector2(78,448), "back")
-    _make_touch_button(layer, "◀", Vector2(8,404), "left")
-    _make_touch_button(layer, "▶", Vector2(148,404), "right")
-    _make_touch_button(layer, "FIRE", Vector2(805,404), "fire")
+    # HUD revisado para o Galaxy A03: sem polígonos/triângulos, apenas botões circulares.
+    _make_touch_button(layer, "▲", Vector2(58,365), "forward")
+    _make_touch_button(layer, "▼", Vector2(58,439), "back")
+    _make_touch_button(layer, "◀", Vector2(8,402), "left")
+    _make_touch_button(layer, "▶", Vector2(108,402), "right")
+    _make_touch_button(layer, "FIRE", Vector2(812,424), "fire")
+
+    var hint := Label.new()
+    hint.text = "TOQUE/ARRASTE NO LADO DIREITO PARA MIRAR"
+    hint.position = Vector2(550,500)
+    hint.add_theme_font_size_override("font_size", 13)
+    hint.modulate = Color(1,1,1,0.55)
+    layer.add_child(hint)
 
     var crosshair := Label.new()
     crosshair.text = "+"
@@ -219,9 +227,24 @@ func _make_touch_button(layer: CanvasLayer, label_text: String, pos: Vector2, ac
     var b := Button.new()
     b.text = label_text
     b.position = pos
-    b.size = Vector2(120,64)
-    b.modulate = Color(1,1,1,0.72)
-    b.add_theme_font_size_override("font_size", 22)
+    b.size = Vector2(68,68)
+    b.custom_minimum_size = Vector2(68,68)
+    b.focus_mode = Control.FOCUS_NONE
+    b.mouse_filter = Control.MOUSE_FILTER_STOP
+    var normal := StyleBoxFlat.new()
+    normal.bg_color = Color(0.12, 0.14, 0.18, 0.62)
+    normal.border_color = Color(1,1,1,0.30)
+    normal.set_border_width_all(2)
+    normal.set_corner_radius_all(34)
+    var pressed := StyleBoxFlat.new()
+    pressed.bg_color = Color(0.35, 0.38, 0.45, 0.78)
+    pressed.border_color = Color(1,1,1,0.55)
+    pressed.set_border_width_all(2)
+    pressed.set_corner_radius_all(34)
+    b.add_theme_stylebox_override("normal", normal)
+    b.add_theme_stylebox_override("hover", normal)
+    b.add_theme_stylebox_override("pressed", pressed)
+    b.add_theme_font_size_override("font_size", 21 if action != "fire" else 17)
     b.button_down.connect(func(): _set_mobile(action, true))
     b.button_up.connect(func(): _set_mobile(action, false))
     layer.add_child(b)
