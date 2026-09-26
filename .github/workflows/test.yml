@@ -103,14 +103,3 @@ jobs:
             build/apk-badging.txt
           if-no-files-found: error
           retention-days: 14
-
-
-      - name: Publish direct APK release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          gh release create "a03-playtest-171" build/SGFire-A03-171.apk \
-            --title "SGFire A03 Playtest 171" \
-            --notes "Build de combate offline para Samsung A03: controles touchscreen, bots, tiros, dano visual e cenário noturno. Validar instalação e combate antes de expandir o jogo." \
-            --repo "${{ github.repository }}"
