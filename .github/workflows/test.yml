@@ -103,3 +103,5 @@ jobs:
             build/apk-badging.txt
           if-no-files-found: error
           retention-days: 14
+
+# validation touch
