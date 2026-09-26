@@ -1,5 +1,5 @@
-name: SGFire Android APK - A03 playtest 169
-# trigger: clean-install-169
+name: SGFire Android APK - A03 playtest 170
+# trigger: clean-install-170
 
 on:
   push:
@@ -88,18 +88,18 @@ jobs:
           set -euo pipefail
           rm -rf build
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/SGFire-A03-169.apk
-          test -s build/SGFire-A03-169.apk
-          "$ANDROID_HOME/build-tools/35.0.1/zipalign" -c -P 4 -v 4 build/SGFire-A03-169.apk
-          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-A03-169.apk
-          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-A03-169.apk | tee build/apk-badging.txt
+          godot --headless --path . --export-debug "Android" build/SGFire-A03-170.apk
+          test -s build/SGFire-A03-170.apk
+          "$ANDROID_HOME/build-tools/35.0.1/zipalign" -c -P 4 -v 4 build/SGFire-A03-170.apk
+          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-A03-170.apk
+          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-A03-170.apk | tee build/apk-badging.txt
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SGFire-A03-APK-169
+          name: SGFire-A03-APK-170
           path: |
-            build/SGFire-A03-169.apk
+            build/SGFire-A03-170.apk
             build/apk-badging.txt
           if-no-files-found: error
           retention-days: 14
@@ -110,7 +110,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh release create "a03-playtest-169" build/SGFire-A03-169.apk \
-            --title "SGFire A03 Playtest 169" \
+          gh release create "a03-playtest-170" build/SGFire-A03-170.apk \
+            --title "SGFire A03 Playtest 170" \
             --notes "Build de combate offline para Samsung A03: controles touchscreen, bots, tiros, dano visual e cenário noturno. Validar instalação e combate antes de expandir o jogo." \
             --repo "${{ github.repository }}"
