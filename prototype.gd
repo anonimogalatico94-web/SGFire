@@ -7,6 +7,11 @@ const FIRE_COOLDOWN := 0.22
 
 var player: CharacterBody3D
 var camera: Camera3D
+var weapon: MeshInstance3D
+var muzzle_flash: OmniLight3D
+var fire_sound: AudioStreamPlayer
+var reload_sound: AudioStreamPlayer
+var dry_sound: AudioStreamPlayer
 var player_health := 100
 var player_score := 0
 var mobile_fire := false
@@ -25,12 +30,31 @@ var bot_flash: Dictionary = {}
 var damage_flash: ColorRect
 var health_label: Label
 var score_label: Label
+var ammo := 6
+var reloading := false
 
 func _ready() -> void:
+    _build_audio()
     _build_world()
     _build_player()
     _build_bots()
     _build_hud()
+
+func _build_audio() -> void:
+    fire_sound = _make_audio("res://audio/sgfire_shot.wav")
+    reload_sound = _make_audio("res://audio/sgfire_reload.wav")
+    dry_sound = _make_audio("res://audio/sgfire_dry.wav")
+    add_child(fire_sound)
+    add_child(reload_sound)
+    add_child(dry_sound)
+
+func _make_audio(path: String) -> AudioStreamPlayer:
+    var p := AudioStreamPlayer.new()
+    var stream = load(path)
+    if stream != null:
+        p.stream = stream
+    p.volume_db = -2.0
+    return p
 
 func _physics_process(delta: float) -> void:
     if player == null:
@@ -126,10 +150,29 @@ func _build_player() -> void:
     body.material = mat
     player.add_child(body_mesh)
 
+    weapon = MeshInstance3D.new()
+    var weapon_mesh := BoxMesh.new()
+    weapon_mesh.size = Vector3(0.14, 0.16, 0.62)
+    var weapon_mat := StandardMaterial3D.new()
+    weapon_mat.albedo_color = Color("#242424")
+    weapon_mat.metallic = 0.65
+    weapon_mat.roughness = 0.32
+    weapon_mesh.material = weapon_mat
+    weapon.mesh = weapon_mesh
+    weapon.position = Vector3(0.28, -0.08, -0.48)
+
     camera = Camera3D.new()
     camera.position = Vector3(0, 0.55, 0)
     camera.current = true
     player.add_child(camera)
+    camera.add_child(weapon)
+
+    muzzle_flash = OmniLight3D.new()
+    muzzle_flash.light_color = Color("#ffd98a")
+    muzzle_flash.light_energy = 0.0
+    muzzle_flash.omni_range = 3.0
+    muzzle_flash.position = Vector3(0, 0, -0.72)
+    camera.add_child(muzzle_flash)
 
 func _build_bots() -> void:
     var positions := [
@@ -200,6 +243,7 @@ func _build_hud() -> void:
     _make_touch_button(layer, "◀", Vector2(8,402), "left")
     _make_touch_button(layer, "▶", Vector2(108,402), "right")
     _make_touch_button(layer, "FIRE", Vector2(812,424), "fire")
+    _make_touch_button(layer, "R", Vector2(735,424), "reload")
 
     var hint := Label.new()
     hint.text = "TOQUE/ARRASTE NO LADO DIREITO PARA MIRAR"
@@ -255,7 +299,10 @@ func _set_mobile(action: String, value: bool) -> void:
         "back": mobile_back = value
         "left": mobile_left = value
         "right": mobile_right = value
-        "fire": mobile_fire = value
+        "fire": mobile_fire
+        "reload":
+            if value:
+                _reload() = value
 
 func _unhandled_input(event: InputEvent) -> void:
     if event is InputEventScreenTouch:
@@ -287,9 +334,23 @@ func _player_move(_delta: float) -> void:
     player.move_and_slide()
 
 func _player_fire() -> void:
-    if fire_timer > 0.0:
+    if fire_timer > 0.0 or reloading:
         return
+    if ammo <= 0:
+        dry_sound.play()
+        fire_timer = 0.18
+        return
+    ammo -= 1
     fire_timer = FIRE_COOLDOWN
+    fire_sound.play()
+    muzzle_flash.light_energy = 6.0
+    weapon.rotation_degrees.x = -15.0
+    get_tree().create_timer(0.045).timeout.connect(func():
+        if is_instance_valid(muzzle_flash):
+            muzzle_flash.light_energy = 0.0
+        if is_instance_valid(weapon):
+            weapon.rotation_degrees.x = 0.0
+    )
     var origin := camera.global_position
     var target := origin + (-camera.global_transform.basis.z * 60.0)
     var query := PhysicsRayQueryParameters3D.create(origin, target)
@@ -338,7 +399,18 @@ func _respawn_bot(bot: CharacterBody3D) -> void:
 
 func _update_hud() -> void:
     health_label.text = "VIDA: %d" % player_health
-    score_label.text = "PONTOS: %d  •  ELIMINADOS: %d/%d" % [player_score, eliminated_bots, bots.size()]
+    score_label.text = "PONTOS: %d  •  ELIMINADOS: %d/%d  •  MUNI: %d/6" % [player_score, eliminated_bots, bots.size(), ammo]
+
+func _reload() -> void:
+    if reloading or ammo == 6:
+        return
+    reloading = true
+    reload_sound.play()
+    get_tree().create_timer(0.55).timeout.connect(func():
+        if is_instance_valid(self):
+            ammo = 6
+            reloading = false
+    )
 
 func _spawn_tracer(from_pos: Vector3, to_pos: Vector3, color: Color) -> void:
     var length := from_pos.distance_to(to_pos)
