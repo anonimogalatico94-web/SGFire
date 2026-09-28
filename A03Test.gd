@@ -17,4 +17,6 @@ func _ready() -> void:
     add_child(button)
 
 func _start_game() -> void:
-    get_tree().change_scene_to_file("res://Prototype.tscn")
+    var scene := load("res://Prototype.tscn")
+    if scene != null:
+        get_tree().change_scene_to_packed(scene)
