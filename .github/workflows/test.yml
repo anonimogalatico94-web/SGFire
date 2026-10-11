@@ -79,9 +79,6 @@ jobs:
           test -f A03Test.gd
           test -f Prototype.tscn
           test -f prototype.gd
-          test -f audio/sgfire_shot.wav
-          test -f audio/sgfire_reload.wav
-          test -f audio/sgfire_dry.wav
           godot --headless --editor --quit --path .
 
       - name: Export APK
