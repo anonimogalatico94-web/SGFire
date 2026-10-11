@@ -1,5 +1,4 @@
-name: SGFire Android APK - A03 playtest 171
-# trigger: clean-install-172
+name: SGFire Android APK - A03 playtest 172
 
 on:
   push:
@@ -7,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   android-apk:
@@ -80,6 +79,9 @@ jobs:
           test -f A03Test.gd
           test -f Prototype.tscn
           test -f prototype.gd
+          test -f audio/sgfire_shot.wav
+          test -f audio/sgfire_reload.wav
+          test -f audio/sgfire_dry.wav
           godot --headless --editor --quit --path .
 
       - name: Export APK
@@ -88,20 +90,18 @@ jobs:
           set -euo pipefail
           rm -rf build
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/SGFire-A03-171.apk
-          test -s build/SGFire-A03-171.apk
-          "$ANDROID_HOME/build-tools/35.0.1/zipalign" -c -P 4 -v 4 build/SGFire-A03-171.apk
-          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-A03-171.apk
-          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-A03-171.apk | tee build/apk-badging.txt
+          godot --headless --path . --export-debug "Android" build/SGFire-A03-172.apk
+          test -s build/SGFire-A03-172.apk
+          "$ANDROID_HOME/build-tools/35.0.1/zipalign" -c -P 4 -v 4 build/SGFire-A03-172.apk
+          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-A03-172.apk
+          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-A03-172.apk | tee build/apk-badging.txt
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SGFire-A03-APK-171
+          name: SGFire-A03-APK-172
           path: |
-            build/SGFire-A03-171.apk
+            build/SGFire-A03-172.apk
             build/apk-badging.txt
           if-no-files-found: error
           retention-days: 14
-
-# validation touch 172
