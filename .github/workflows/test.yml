@@ -1,4 +1,4 @@
-name: SGFire Android APK - A03 playtest 172
+name: SGFire Android APK - Android 8+ playtest 173
 
 on:
   push:
@@ -87,7 +87,7 @@ jobs:
           set -euo pipefail
           rm -rf build
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/SGFire-A03-172.apk
+          godot --headless --path . --export-debug "Android" build/SGFire-Android8Plus-173.apk
           test -s build/SGFire-A03-172.apk
           "$ANDROID_HOME/build-tools/35.0.1/zipalign" -c -P 4 -v 4 build/SGFire-A03-172.apk
           "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-A03-172.apk
@@ -96,7 +96,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SGFire-A03-APK-172
+          name: SGFire-Android8Plus-APK-173
           path: |
             build/SGFire-A03-172.apk
             build/apk-badging.txt
