@@ -1,4 +1,4 @@
-name: SGFire Android APK - Android 9+ playtest 174
+name: SGFire Android APK - Android 9+ playtest 175
 
 on:
   push:
@@ -16,17 +16,14 @@ jobs:
       GODOT_VERSION: 4.4.1
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
       ANDROID_HOME: /usr/local/lib/android/sdk
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
-
       - name: Prepare Android SDK
         shell: bash
         run: |
@@ -38,7 +35,6 @@ jobs:
           "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.1"
           "$ANDROID_HOME/platform-tools/adb" version
           "$ANDROID_HOME/build-tools/35.0.1/aapt" version
-
       - name: Install Godot ${{ env.GODOT_VERSION }}
         shell: bash
         run: |
@@ -48,7 +44,6 @@ jobs:
           chmod +x "Godot_v${GODOT_VERSION}-stable_linux.x86_64"
           sudo mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" /usr/local/bin/godot
           godot --version
-
       - name: Install matching Android export templates
         shell: bash
         run: |
@@ -59,7 +54,6 @@ jobs:
           unzip -q templates.tpz -d /tmp/godot_templates
           mkdir -p "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
           cp -a /tmp/godot_templates/templates/. "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/"
-
       - name: Prepare debug keystore
         shell: bash
         run: |
@@ -68,7 +62,6 @@ jobs:
           base64 -d .github/android/sgfire-debug.keystore.b64 > "$HOME/.android/debug.keystore"
           chmod 600 "$HOME/.android/debug.keystore"
           keytool -list -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey
-
       - name: Validate project
         shell: bash
         run: |
@@ -80,25 +73,23 @@ jobs:
           test -f Prototype.tscn
           test -f prototype.gd
           godot --headless --editor --quit --path .
-
       - name: Export APK
         shell: bash
         run: |
           set -euo pipefail
           rm -rf build
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/SGFire-Android9Plus-174.apk
-          test -s build/SGFire-Android9Plus-174.apk
-          "$ANDROID_HOME/build-tools/35.0.1/zipalign" -c -P 4 -v 4 build/SGFire-Android9Plus-174.apk
-          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-Android9Plus-174.apk
-          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-Android9Plus-174.apk | tee build/apk-badging.txt
-
+          godot --headless --path . --export-debug "Android" build/SGFire-Android9Plus-175.apk
+          test -s build/SGFire-Android9Plus-175.apk
+          "$ANDROID_HOME/build-tools/35.0.1/zipalign" -c -P 4 -v 4 build/SGFire-Android9Plus-175.apk
+          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-Android9Plus-175.apk
+          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-Android9Plus-175.apk | tee build/apk-badging.txt
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SGFire-Android9Plus-APK-174
+          name: SGFire-Android9Plus-APK-175
           path: |
-            build/SGFire-Android9Plus-174.apk
+            build/SGFire-Android9Plus-175.apk
             build/apk-badging.txt
           if-no-files-found: error
           retention-days: 14
