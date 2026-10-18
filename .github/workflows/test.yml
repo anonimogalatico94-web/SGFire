@@ -1,4 +1,4 @@
-name: SGFire Android APK - Android 9+ playtest 175
+name: SGFire Android APK - Android 9+ playtest 177
 
 on:
   push:
@@ -79,17 +79,17 @@ jobs:
           set -euo pipefail
           rm -rf build
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/SGFire-Android9Plus-175.apk
-          test -s build/SGFire-Android9Plus-175.apk
-          "$ANDROID_HOME/build-tools/35.0.1/zipalign" -c -P 4 -v 4 build/SGFire-Android9Plus-175.apk
-          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-Android9Plus-175.apk
-          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-Android9Plus-175.apk | tee build/apk-badging.txt
+          godot --headless --path . --export-debug "Android" build/SGFire-Android9Plus-177.apk
+          test -s build/SGFire-Android9Plus-177.apk
+          "$ANDROID_HOME/build-tools/35.0.1/zipalign" -c -P 4 -v 4 build/SGFire-Android9Plus-177.apk
+          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-Android9Plus-177.apk
+          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-Android9Plus-177.apk | tee build/apk-badging.txt
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SGFire-Android9Plus-APK-175
+          name: SGFire-Android9Plus-APK-177
           path: |
-            build/SGFire-Android9Plus-175.apk
+            build/SGFire-Android9Plus-177.apk
             build/apk-badging.txt
           if-no-files-found: error
           retention-days: 14
