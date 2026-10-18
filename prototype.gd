@@ -299,10 +299,10 @@ func _set_mobile(action: String, value: bool) -> void:
         "back": mobile_back = value
         "left": mobile_left = value
         "right": mobile_right = value
-        "fire": mobile_fire
+        "fire": mobile_fire = value
         "reload":
             if value:
-                _reload() = value
+                _reload()
 
 func _unhandled_input(event: InputEvent) -> void:
     if event is InputEventScreenTouch:
