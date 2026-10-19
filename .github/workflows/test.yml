@@ -1,4 +1,4 @@
-name: SGFire Android APK - Android 9+ playtest 178
+name: SGFire Android APK - Android 9+ playtest 179
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
 jobs:
   android-apk:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       GODOT_VERSION: 4.4.1
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
@@ -68,28 +68,42 @@ jobs:
           set -euo pipefail
           test -f project.godot
           test -f export_presets.cfg
-          test -f A03Test.tscn
-          test -f A03Test.gd
           test -f Prototype.tscn
           test -f prototype.gd
-          godot --headless --editor --quit --path .
+          mkdir -p build
+          godot --headless --editor --quit --path . 2>&1 | tee build/editor-validation.log
+          if grep -E "SCRIPT ERROR|Parse Error" build/editor-validation.log; then
+            echo "Godot reported a script parse/runtime error during project validation."
+            exit 1
+          fi
+      - name: Smoke-test actual startup scene
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --path . --quit-after 120 2>&1 | tee build/runtime-smoke.log
+          if grep -E "SCRIPT ERROR|Parse Error" build/runtime-smoke.log; then
+            echo "The startup scene reported a script error."
+            exit 1
+          fi
+          echo "Startup scene ran for 120 frames without a GDScript error."
       - name: Export APK
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf build
-          mkdir -p build
-          godot --headless --path . --export-debug "Android" build/SGFire-Android9Plus-178.apk
-          test -s build/SGFire-Android9Plus-178.apk
-          "$ANDROID_HOME/build-tools/35.0.1/zipalign" -c -P 4 -v 4 build/SGFire-Android9Plus-178.apk
-          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/SGFire-Android9Plus-178.apk
-          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/SGFire-Android9Plus-178.apk | tee build/apk-badging.txt
+          rm -rf build/export
+          mkdir -p build/export
+          godot --headless --path . --export-debug "Android" build/export/SGFire-Android9Plus-179.apk
+          test -s build/export/SGFire-Android9Plus-179.apk
+          "$ANDROID_HOME/build-tools/35.0.1/zipalign" -c -P 4 -v 4 build/export/SGFire-Android9Plus-179.apk
+          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/export/SGFire-Android9Plus-179.apk
+          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/export/SGFire-Android9Plus-179.apk | tee build/export/apk-badging.txt
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SGFire-Android9Plus-APK-178
+          name: SGFire-Android9Plus-APK-179
           path: |
-            build/SGFire-Android9Plus-178.apk
-            build/apk-badging.txt
+            build/export/SGFire-Android9Plus-179.apk
+            build/export/apk-badging.txt
+            build/runtime-smoke.log
           if-no-files-found: error
           retention-days: 14
