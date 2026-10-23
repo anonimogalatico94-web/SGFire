@@ -1,4 +1,4 @@
-name: SGFire Android APK - Android 9+ playtest 179
+name: SGFire Android APK - Android 9+ playtest 180
 
 on:
   push:
@@ -92,17 +92,17 @@ jobs:
           set -euo pipefail
           rm -rf build/export
           mkdir -p build/export
-          godot --headless --path . --export-debug "Android" build/export/SGFire-Android9Plus-179.apk
-          test -s build/export/SGFire-Android9Plus-179.apk
-          "$ANDROID_HOME/build-tools/35.0.1/zipalign" -c -P 4 -v 4 build/export/SGFire-Android9Plus-179.apk
-          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/export/SGFire-Android9Plus-179.apk
-          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/export/SGFire-Android9Plus-179.apk | tee build/export/apk-badging.txt
+          godot --headless --path . --export-debug "Android" build/export/SGFire-Android9Plus-180.apk
+          test -s build/export/SGFire-Android9Plus-180.apk
+          "$ANDROID_HOME/build-tools/35.0.1/zipalign" -c -P 4 -v 4 build/export/SGFire-Android9Plus-180.apk
+          "$ANDROID_HOME/build-tools/35.0.1/apksigner" verify --verbose build/export/SGFire-Android9Plus-180.apk
+          "$ANDROID_HOME/build-tools/35.0.1/aapt" dump badging build/export/SGFire-Android9Plus-180.apk | tee build/export/apk-badging.txt
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SGFire-Android9Plus-APK-179
+          name: SGFire-Android9Plus-APK-180
           path: |
-            build/export/SGFire-Android9Plus-179.apk
+            build/export/SGFire-Android9Plus-180.apk
             build/export/apk-badging.txt
             build/runtime-smoke.log
           if-no-files-found: error
