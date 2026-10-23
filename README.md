@@ -2,12 +2,12 @@
 
 Protótipo de FPS mobile offline em Godot 4.4.1, com destino Android 9+ (API mínima 28).
 
-## Estado atual — playtest 179
+## Estado atual — playtest 180
 
 - Cena de inicialização configurada em `project.godot`: `Prototype.tscn`.
 - Protótipo 3D noturno inspirado em São Gabriel–RS, com jogador em primeira pessoa, bots, cenário com coberturas, HUD e controles de toque.
 - Controles de movimento, mira por arraste, disparo e recarga.
-- Efeitos visuais de disparo e suporte a efeitos sonoros quando os arquivos de áudio estiverem presentes.
+- Efeitos visuais de disparo e efeitos sonoros curtos gerados pelo próprio jogo (disparo, recarga e munição vazia), sem depender de arquivos de áudio externos.
 - Exportação Android para ARMv7 e ARM64; API mínima 28 (Android 9).
 - O teste é offline. Multiplayer, lobby completo, campeonatos e publicação ficam para depois da validação no aparelho.
 
@@ -26,9 +26,9 @@ O workflow `.github/workflows/test.yml` faz:
 2. Validação dos arquivos do projeto.
 3. Execução headless da cena inicial por 120 frames, verificando erros de GDScript.
 4. Exportação e verificação da assinatura/alinhamento da APK.
-5. Publicação do artefato `SGFire-Android9Plus-APK-179`, com a APK e os logs de validação.
+5. Publicação do artefato `SGFire-Android9Plus-APK-180`, com a APK e os logs de validação.
 
-A compilação verde confirma que a APK foi exportada e passou pelas verificações automatizadas. **Não substitui o teste físico de instalação, abertura, imagem e controles no Moto E6i.**
+A compilação verde confirma que a APK foi exportada e passou pelas verificações automatizadas. O áudio procedural evita falhas por arquivos WAV ausentes; ainda é necessário validar a abertura e os controles no Moto E6i físico. **Não substitui o teste físico de instalação, abertura, imagem e controles no Moto E6i.**
 
 ## Arquivos principais
 
