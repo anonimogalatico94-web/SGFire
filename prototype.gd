@@ -41,20 +41,53 @@ func _ready() -> void:
     _build_hud()
 
 func _build_audio() -> void:
-    fire_sound = _make_audio("res://audio/sgfire_shot.wav")
-    reload_sound = _make_audio("res://audio/sgfire_reload.wav")
-    dry_sound = _make_audio("res://audio/sgfire_dry.wav")
+    # Generate short PCM effects at runtime: no external audio files required.
+    fire_sound = _make_audio("shot")
+    reload_sound = _make_audio("reload")
+    dry_sound = _make_audio("dry")
     add_child(fire_sound)
     add_child(reload_sound)
     add_child(dry_sound)
 
-func _make_audio(path: String) -> AudioStreamPlayer:
-    var p := AudioStreamPlayer.new()
-    var stream = load(path)
-    if stream != null:
-        p.stream = stream
-    p.volume_db = -2.0
-    return p
+func _make_audio(kind: String) -> AudioStreamPlayer:
+    var player_audio := AudioStreamPlayer.new()
+    var stream := AudioStreamWAV.new()
+    const RATE := 22050
+    var duration := 0.12
+    var start_hz := 150.0
+    var end_hz := 65.0
+    var amplitude := 0.48
+    if kind == "reload":
+        duration = 0.20
+        start_hz = 720.0
+        end_hz = 420.0
+        amplitude = 0.22
+    elif kind == "dry":
+        duration = 0.07
+        start_hz = 105.0
+        end_hz = 75.0
+        amplitude = 0.32
+    var pcm := PackedByteArray()
+    var sample_count := int(RATE * duration)
+    pcm.resize(sample_count * 2)
+    for i in sample_count:
+        var t := float(i) / float(RATE)
+        var progress := float(i) / maxf(1.0, float(sample_count - 1))
+        var frequency := lerpf(start_hz, end_hz, progress)
+        var envelope := (1.0 - progress) * (1.0 - progress)
+        var wave := sin(TAU * frequency * t)
+        if kind == "shot":
+            wave = wave * 0.65 + sin(TAU * frequency * 2.4 * t) * 0.35
+        var sample := int(clampf(wave * envelope * amplitude, -1.0, 1.0) * 32767.0)
+        pcm[i * 2] = sample & 0xff
+        pcm[i * 2 + 1] = (sample >> 8) & 0xff
+    stream.format = AudioStreamWAV.FORMAT_16_BITS
+    stream.mix_rate = RATE
+    stream.stereo = false
+    stream.data = pcm
+    player_audio.stream = stream
+    player_audio.volume_db = -3.0
+    return player_audio
 
 func _physics_process(delta: float) -> void:
     if player == null:
